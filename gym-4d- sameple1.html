@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTH GYM — Transform. Emerge. Ascend.</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#faf6f0;--parchment:#f2ebe0;--charcoal:#1c1a18;--mid:#6b5f52;--lm:#a09080;
+  --amber:#ff8c42;--fire:#ff4d1c;--ember:#ff1f6b;--gold:#ffb347;--violet:#c850c0;--blue:#4158d0;--cyan:#06b6d4;
+  --gfire:linear-gradient(135deg,#ff8c42,#ff4d1c,#ff1f6b);
+  --gmoth:linear-gradient(135deg,#ff8c42 0%,#c850c0 50%,#4158d0 100%);
+  --gember:linear-gradient(135deg,#ffb347,#ff8c42,#ff4d1c);
+  --gwing:linear-gradient(135deg,#4158d0,#c850c0,#ff4d1c,#ffb347);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--cream)}
+body{font-family:'Barlow',sans-serif;background:var(--cream);color:var(--charcoal);cursor:none;overflow:hidden;height:100vh}
+
+/* CURSOR */
+#cur{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--amber);pointer-events:none;z-index:9999;mix-blend-mode:multiply;transition:transform .15s}
+#ring{position:fixed;width:38px;height:38px;border:1.5px solid rgba(255,140,66,.5);border-radius:50%;pointer-events:none;z-index:9998;transition:transform .3s,border-color .3s}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(250,246,240,.9);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,.05)}
+.nb{display:flex;align-items:center;gap:10px}
+.nls{width:34px;height:34px}
+.nlt{font-family:'Bebas Neue',sans-serif;font-size:1.65rem;letter-spacing:5px;background:var(--gfire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nl{display:flex;gap:36px;list-style:none}
+.nl a{font-size:.68rem;font-weight:700;letter-spacing:3.5px;text-transform:uppercase;text-decoration:none;color:var(--charcoal);position:relative;padding-bottom:4px}
+.nl a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:var(--gfire);border-radius:2px;transition:width .35s}
+.nl a:hover::after{width:100%}
+.nc{font-size:.68rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:11px 26px;background:var(--gfire);color:#fff;border:none;border-radius:3px;cursor:none;box-shadow:0 4px 18px rgba(255,77,28,.32);transition:transform .2s,box-shadow .2s}
+.nc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,77,28,.5)}
+
+/* LAYOUT */
+.vp{position:fixed;inset:0;overflow:hidden}
+.track{display:flex;will-change:transform;height:100vh}
+.panel{flex-shrink:0;width:100vw;height:100vh;position:relative;overflow:hidden}
+
+/* PROGRESS */
+#prog{position:fixed;bottom:0;left:0;height:3px;background:var(--gfire);z-index:900;transition:width .15s}
+
+/* DOTS */
+#dots{position:fixed;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:900}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.15);cursor:none;transition:all .3s}
+.dot.on{background:var(--amber);transform:scale(1.5)}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(44px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.rv.in{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}.d6{transition-delay:.6s}
+
+/* ─── P1 HERO ─── */
+#p1{background:var(--cream)}
+.hbg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 65% 45%,rgba(255,140,66,.16) 0%,transparent 65%),radial-gradient(ellipse 50% 60% at 82% 72%,rgba(200,80,192,.1) 0%,transparent 55%)}
+.hgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.035) 1px,transparent 1px);background-size:80px 80px}
+
+/* Parallax moth layers */
+.ml{position:absolute;pointer-events:none;will-change:transform}
+.ml-bg{width:680px;height:680px;right:-80px;top:50%;transform:translateY(-50%);opacity:.06}
+.ml-mid{width:500px;height:500px;right:30px;top:50%;transform:translateY(-50%);opacity:.14}
+.ml-fg{width:360px;height:360px;right:130px;top:50%;transform:translateY(-50%);opacity:.92}
+
+.htxt{position:absolute;left:9%;top:50%;transform:translateY(-50%);max-width:560px}
+.heb{display:inline-flex;align-items:center;gap:14px;font-size:.6rem;font-weight:700;letter-spacing:6px;text-transform:uppercase;color:var(--amber);margin-bottom:20px}
+.heb::before,.heb::after{content:'';width:34px;height:1.5px;background:var(--gfire);border-radius:2px}
+.htit{font-family:'Bebas Neue',sans-serif;font-size:clamp(70px,10vw,138px);line-height:.88;letter-spacing:2px;color:var(--charcoal)}
+.htit .fw{background:var(--gmoth);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.hsub{font-size:.98rem;font-weight:300;line-height:1.75;color:var(--mid);margin:20px 0 34px;max-width:420px}
+.hbtns{display:flex;gap:14px}
+.bf{padding:15px 36px;background:var(--gfire);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border:none;border-radius:3px;cursor:none;box-shadow:0 6px 26px rgba(255,77,28,.38);transition:transform .3s,box-shadow .3s}
+.bf:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 14px 40px rgba(255,77,28,.5)}
+.bg{padding:15px 36px;background:transparent;color:var(--charcoal);font-size:.7rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border:1.5px solid rgba(28,26,24,.3);border-radius:3px;cursor:none;transition:all .3s}
+.bg:hover{background:var(--charcoal);color:#fff}
+.sind{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--lm)}
+.sln{width:1.5px;height:50px;background:linear-gradient(to bottom,var(--amber),transparent);animation:sla 1.6s ease-in-out infinite}
+@keyframes sla{0%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(0);transform-origin:bottom}}
+
+/* ─── P2 STATS ─── */
+#p2{background:#181614}
+.p2bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 20% 50%,rgba(255,140,66,.1) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 30%,rgba(200,80,192,.08) 0%,transparent 50%)}
+.sw{position:relative;z-index:2;width:100%;height:100%;display:grid;grid-template-columns:repeat(4,1fr)}
+.sc{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 28px;border-right:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;transition:background .4s}
+.sc:last-child{border-right:none}
+.sc::before{content:'';position:absolute;inset:0;background:var(--gfire);opacity:0;transition:opacity .4s}
+.sc:hover::before{opacity:.07}
+.sc-ico{margin-bottom:18px;position:relative;z-index:1}
+.sc-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(54px,7vw,86px);background:var(--gfire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;position:relative;z-index:1;transition:transform .3s}
+.sc:hover .sc-num{transform:scale(1.06)}
+.sc-lbl{font-size:.6rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:10px;text-align:center;position:relative;z-index:1}
+
+/* ─── P3 PROGRAMS ─── */
+#p3{background:var(--cream)}
+.p3bg{position:absolute;inset:0;background:radial-gradient(ellipse 50% 70% at 92% 20%,rgba(255,140,66,.11) 0%,transparent 55%),radial-gradient(ellipse 40% 50% at 8% 82%,rgba(65,88,208,.07) 0%,transparent 50%)}
+.p3in{position:relative;z-index:2;width:100%;max-width:1340px;margin:0 auto;padding:0 70px;display:flex;flex-direction:column;justify-content:center;height:100%}
+.stag{font-size:.6rem;font-weight:700;letter-spacing:6px;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
+.stit{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,6vw,74px);line-height:.95;color:var(--charcoal)}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.pc{border-radius:14px;padding:36px 28px;position:relative;overflow:hidden;cursor:none;transition:transform .45s cubic-bezier(.34,1.56,.64,1),box-shadow .45s}
+.pc:hover{transform:translateY(-14px) scale(1.02);box-shadow:0 28px 56px rgba(0,0,0,.12)}
+.pc:hover .pcm{transform:scale(1.14) rotate(6deg)}
+.pc:hover .pca{opacity:1;transform:translate(3px,-3px)}
+.pc1{background:linear-gradient(145deg,#fff5ee,#ffeadb);border:1px solid rgba(255,140,66,.2)}
+.pc2{background:linear-gradient(145deg,#f5eeff,#e8d4ff);border:1px solid rgba(200,80,192,.2)}
+.pc3{background:linear-gradient(145deg,#eef2ff,#d8e3ff);border:1px solid rgba(65,88,208,.2)}
+.pcm{width:52px;height:52px;margin-bottom:16px;transition:transform .3s}
+.pbadge{display:inline-block;padding:5px 13px;border-radius:100px;font-size:.56rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:14px}
+.b1{background:var(--gfire)}.b2{background:var(--gmoth)}.b3{background:var(--gember)}
+.pc h3{font-size:1.5rem;font-weight:900;letter-spacing:.4px;margin-bottom:9px;color:var(--charcoal)}
+.pc p{font-size:.86rem;color:var(--mid);line-height:1.6;margin-bottom:18px}
+.pcs{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:2px}
+.s1{color:var(--fire)}.s2{color:var(--violet)}.s3{color:var(--blue)}
+.pca{position:absolute;top:26px;right:26px;opacity:.35;transition:opacity .3s,transform .3s}
+
+/* ─── P4 EYE MOTH ─── */
+#p4{background:#0e0c0a}
+.p4bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(255,77,28,.08) 0%,transparent 60%)}
+.p4gd{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px}
+.p4in{position:relative;z-index:2;text-align:center;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:0 40px}
+.p4tit{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4.5vw,58px);color:#fff;letter-spacing:5px;margin-bottom:12px}
+.p4tit .gt{background:var(--gmoth);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p4sub{font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:40px}
+
+/* Moth + eye */
+.emw{position:relative;display:inline-block;margin-bottom:40px}
+.bmsv{width:480px;height:290px;filter:drop-shadow(0 0 36px rgba(255,140,66,.45)) drop-shadow(0 0 70px rgba(200,80,192,.28));animation:mhov 4s ease-in-out infinite}
+@keyframes mhov{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-12px) rotate(1deg)}}
+.eonm{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%)}
+.eout{width:112px;height:62px;border-radius:50%;background:radial-gradient(ellipse,#fffaf4 60%,#ffddbb 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 36px rgba(255,140,66,.85),0 0 72px rgba(200,80,192,.4);animation:egl 2.5s ease-in-out infinite}
+@keyframes egl{0%,100%{box-shadow:0 0 36px rgba(255,140,66,.85),0 0 72px rgba(200,80,192,.4)}50%{box-shadow:0 0 60px rgba(255,140,66,1),0 0 110px rgba(200,80,192,.6)}}
+.eiri{width:48px;height:48px;border-radius:50%;background:conic-gradient(#ffb347 0deg,#ff8c42 60deg,#ff4d1c 100deg,#ff1f6b 150deg,#c850c0 200deg,#4158d0 250deg,#06b6d4 300deg,#ffb347 360deg);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 18px rgba(0,0,0,.5);animation:irr 6s linear infinite}
+@keyframes irr{to{transform:rotate(360deg)}}
+.epup{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2a2218,#0a0806);box-shadow:0 0 8px rgba(0,0,0,.8);position:relative;animation:irr 6s linear infinite reverse}
+.esp{width:5px;height:5px;border-radius:50%;background:#fff;position:absolute;top:3px;right:3px;box-shadow:0 0 5px #fff}
+.p4stats{display:flex;gap:52px}
+.p4s-v{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;background:var(--gfire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p4s-l{font-size:.58rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.28)}
+
+/* ─── P5 TRAINERS ─── */
+#p5{background:var(--parchment)}
+.p5bg{position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 15% 30%,rgba(255,140,66,.09) 0%,transparent 55%),radial-gradient(ellipse 40% 55% at 85% 72%,rgba(65,88,208,.06) 0%,transparent 50%)}
+.p5in{position:relative;z-index:2;width:100%;max-width:1340px;margin:0 auto;padding:0 70px;display:flex;flex-direction:column;justify-content:center;height:100%}
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:48px}
+.tc{border-radius:18px;overflow:hidden;cursor:none;position:relative;transition:transform .45s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 22px rgba(0,0,0,.07)}
+.tc:hover{transform:translateY(-18px)}
+.tc:hover .tcgl{opacity:1}
+.tc:hover .tcico{transform:scale(1.1) rotate(5deg)}
+.tctop{height:250px;display:flex;align-items:center;justify-content:center;position:relative}
+.tt1{background:linear-gradient(145deg,#fff3ec,#ffddc8)}.tt2{background:linear-gradient(145deg,#f2eeff,#e0ccff)}.tt3{background:linear-gradient(145deg,#eaf2ff,#c8d8ff)}
+.tcico{width:110px;height:110px;transition:transform .35s}
+.tcgl{position:absolute;inset:0;opacity:0;background:var(--gfire);mix-blend-mode:multiply;transition:opacity .4s}
+.tcb{padding:22px 24px;background:#fff}
+.tcac{height:3px;background:var(--gfire);margin-bottom:18px;border-radius:2px}
+.tc2 .tcac{background:var(--gmoth)}.tc3 .tcac{background:var(--gember)}
+.tcn{font-size:1.25rem;font-weight:900;letter-spacing:.4px;color:var(--charcoal);margin-bottom:3px}
+.tcs{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+.tcr{display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--mid)}
+.stars{color:#f59e0b;letter-spacing:2px;font-size:.72rem}
+
+/* ─── P6 FEATURES ─── */
+#p6{background:var(--cream)}
+.p6bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 50% 50%,rgba(255,140,66,.08) 0%,transparent 58%)}
+.p6in{position:relative;z-index:2;width:100%;max-width:1340px;margin:0 auto;padding:0 70px;display:flex;flex-direction:column;justify-content:center;height:100%}
+.fg{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px}
+.fc{background:#fff;border-radius:14px;padding:32px 24px;border:1px solid rgba(0,0,0,.06);position:relative;overflow:hidden;cursor:none;transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s}
+.fc:hover{transform:translateY(-10px);box-shadow:0 18px 48px rgba(0,0,0,.09)}
+.fc:hover .fcbg{opacity:1}
+.fc:hover .fcico{transform:rotate(-8deg) scale(1.1)}
+.fcbg{position:absolute;inset:0;opacity:0;background:var(--gfire);mix-blend-mode:soft-light;transition:opacity .4s}
+.fcico{width:50px;height:50px;margin-bottom:18px;transition:transform .35s;position:relative;z-index:1}
+.fc h4{font-size:.95rem;font-weight:900;letter-spacing:.4px;color:var(--charcoal);margin-bottom:8px;position:relative;z-index:1}
+.fc p{font-size:.8rem;color:var(--mid);line-height:1.6;position:relative;z-index:1}
+.fcln{width:28px;height:2.5px;border-radius:2px;margin-top:18px;background:var(--gfire);position:relative;z-index:1}
+.fc:nth-child(2) .fcln{background:var(--gmoth)}.fc:nth-child(3) .fcln{background:var(--gember)}.fc:nth-child(4) .fcln{background:var(--gwing)}
+
+/* ─── P7 CTA ─── */
+#p7{background:#181614}
+.p7bg{position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(255,77,28,.1) 0%,transparent 55%),radial-gradient(ellipse 30% 40% at 80% 20%,rgba(200,80,192,.07) 0%,transparent 48%)}
+.p7gl{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.026) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.026) 1px,transparent 1px);background-size:55px 55px}
+.p7in{position:relative;z-index:2;text-align:center;max-width:760px;padding:0 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;margin:0 auto}
+.ceb{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:6px;text-transform:uppercase;color:var(--amber);margin-bottom:18px}
+.ctit{font-family:'Bebas Neue',sans-serif;font-size:clamp(54px,9vw,116px);line-height:.88;color:#fff;margin-bottom:26px}
+.ctit .ch{background:var(--gfire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.csub{font-size:.92rem;font-weight:300;color:rgba(255,255,255,.42);line-height:1.75;margin-bottom:40px}
+.crow{display:flex;gap:11px;justify-content:center;margin-bottom:26px}
+.cinp{padding:15px 22px;flex:1;max-width:300px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:3px;color:#fff;font-family:'Barlow',sans-serif;font-size:.86rem;outline:none;transition:border-color .3s,background .3s}
+.cinp::placeholder{color:rgba(255,255,255,.25)}.cinp:focus{border-color:var(--amber);background:rgba(255,140,66,.05)}
+.cbtn{padding:15px 30px;background:var(--gfire);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border:none;border-radius:3px;cursor:none;white-space:nowrap;box-shadow:0 6px 26px rgba(255,77,28,.4);transition:transform .2s,box-shadow .2s}
+.cbtn:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(255,77,28,.6)}
+.cperks{display:flex;gap:26px;flex-wrap:wrap;justify-content:center}
+.perk{display:flex;align-items:center;gap:7px;font-size:.68rem;letter-spacing:1px;color:rgba(255,255,255,.35)}
+
+/* parallax elements */
+.pml{position:absolute;pointer-events:none;will-change:transform}
+
+canvas#bgc{position:fixed;inset:0;pointer-events:none;z-index:0}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="cur"></div>
+<div id="ring"></div>
+<div id="prog"></div>
+<div id="dots">
+  <div class="dot on" data-i="0"></div>
+  <div class="dot" data-i="1"></div>
+  <div class="dot" data-i="2"></div>
+  <div class="dot" data-i="3"></div>
+  <div class="dot" data-i="4"></div>
+  <div class="dot" data-i="5"></div>
+  <div class="dot" data-i="6"></div>
+</div>
+
+<nav>
+  <div class="nb">
+    <svg class="nls" viewBox="0 0 38 38" fill="none">
+      <ellipse cx="19" cy="21" rx="3" ry="7" fill="url(#nla)"/>
+      <path d="M16 19 Q7 9 2 2 Q12 7 17 17Z" fill="url(#nlb)" opacity=".9"/>
+      <path d="M22 19 Q31 9 36 2 Q26 7 21 17Z" fill="url(#nlb)" opacity=".9"/>
+      <path d="M16 21 Q5 27 2 36 Q12 29 17 24Z" fill="url(#nlc)" opacity=".75"/>
+      <path d="M22 21 Q33 27 36 36 Q26 29 21 24Z" fill="url(#nlc)" opacity=".75"/>
+      <circle cx="16" cy="16" r="2" fill="#fff" opacity=".55"/>
+      <circle cx="22" cy="16" r="2" fill="#fff" opacity=".55"/>
+      <defs>
+        <linearGradient id="nla" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient>
+        <linearGradient id="nlb" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#c850c0"/></linearGradient>
+        <linearGradient id="nlc" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient>
+      </defs>
+    </svg>
+    <div class="nlt">MOTH GYM</div>
+  </div>
+  <ul class="nl">
+    <li><a href="#">Programs</a></li>
+    <li><a href="#">Trainers</a></li>
+    <li><a href="#">Nutrition</a></li>
+    <li><a href="#">Community</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+  <button class="nc">Join Now</button>
+</nav>
+
+<div class="vp"><div class="track" id="track">
+
+<!-- ═══ P1 HERO ═══ -->
+<section class="panel" id="p1">
+  <div class="hbg"></div>
+  <div class="hgrid"></div>
+
+  <!-- 3 parallax moth layers -->
+  <div class="ml ml-bg pml" data-spd="0.12">
+    <svg viewBox="0 0 680 680" fill="none"><defs><linearGradient id="hb1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#c850c0"/></linearGradient></defs>
+    <ellipse cx="340" cy="372" rx="28" ry="68" fill="url(#hb1)"/>
+    <path d="M312 360 Q192 208 72 56 Q212 158 324 336Z" fill="url(#hb1)" opacity=".8"/>
+    <path d="M368 360 Q488 208 608 56 Q468 158 356 336Z" fill="url(#hb1)" opacity=".8"/>
+    <path d="M312 384 Q136 472 72 608 Q212 492 324 404Z" fill="url(#hb1)" opacity=".5"/>
+    <path d="M368 384 Q544 472 608 608 Q468 492 356 404Z" fill="url(#hb1)" opacity=".5"/></svg>
+  </div>
+  <div class="ml ml-mid pml" data-spd="0.28">
+    <svg viewBox="0 0 500 500" fill="none"><defs><linearGradient id="hm1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4d1c"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+    <ellipse cx="250" cy="274" rx="20" ry="50" fill="url(#hm1)"/>
+    <path d="M230 264 Q142 154 54 44 Q162 114 244 250Z" fill="url(#hm1)" opacity=".9"/>
+    <path d="M270 264 Q358 154 446 44 Q338 114 256 250Z" fill="url(#hm1)" opacity=".9"/>
+    <path d="M230 284 Q98 346 54 456 Q162 364 244 300Z" fill="url(#hm1)" opacity=".6"/>
+    <path d="M270 284 Q402 346 446 456 Q338 364 256 300Z" fill="url(#hm1)" opacity=".6"/>
+    <circle cx="237" cy="254" r="5" fill="white" opacity=".45"/><circle cx="263" cy="254" r="5" fill="white" opacity=".45"/></svg>
+  </div>
+  <div class="ml ml-fg pml" data-spd="0.48" id="fgMoth">
+    <svg viewBox="0 0 360 360" fill="none">
+      <defs>
+        <linearGradient id="hf1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset=".4" stop-color="#ff4d1c"/><stop offset="1" stop-color="#ff1f6b"/></linearGradient>
+        <linearGradient id="hf2" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient>
+        <filter id="gf"><feGaussianBlur stdDeviation="3"/></filter>
+      </defs>
+      <ellipse cx="180" cy="204" rx="12" ry="46" fill="url(#hf1)"/>
+      <circle cx="180" cy="155" r="9" fill="#ffb347"/>
+      <path d="M174 149 Q160 128 148 106" stroke="#ff8c42" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M186 149 Q200 128 212 106" stroke="#ff8c42" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="148" cy="106" r="3" fill="#ffb347"/>
+      <circle cx="212" cy="106" r="3" fill="#ffb347"/>
+      <!-- upper wings -->
+      <path d="M168 190 Q94 108 22 28 Q110 82 174 176Z" fill="url(#hf1)"/>
+      <path d="M168 190 Q94 108 22 28 Q110 82 174 176Z" fill="url(#hf1)" opacity=".3" filter="url(#gf)"/>
+      <path d="M192 190 Q266 108 338 28 Q250 82 186 176Z" fill="url(#hf1)"/>
+      <!-- lower wings -->
+      <path d="M168 212 Q68 268 28 338 Q116 264 174 222Z" fill="url(#hf2)"/>
+      <path d="M192 212 Q292 268 332 338 Q244 264 186 222Z" fill="url(#hf2)"/>
+      <!-- veins -->
+      <path d="M166 196 Q116 152 68 106" stroke="rgba(255,255,255,.22)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M194 196 Q244 152 292 106" stroke="rgba(255,255,255,.22)" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- eye spots -->
+      <circle cx="140" cy="172" r="13" fill="#ff1f6b" opacity=".45"/>
+      <circle cx="140" cy="172" r="7" fill="#4158d0" opacity=".55"/>
+      <circle cx="140" cy="172" r="3.5" fill="#fff" opacity=".38"/>
+      <circle cx="220" cy="172" r="13" fill="#ff1f6b" opacity=".45"/>
+      <circle cx="220" cy="172" r="7" fill="#4158d0" opacity=".55"/>
+      <circle cx="220" cy="172" r="3.5" fill="#fff" opacity=".38"/>
+      <circle cx="180" cy="155" r="4" fill="white" opacity=".65"/>
+    </svg>
+  </div>
+
+  <div class="htxt">
+    <div class="heb rv">Elite Transformation Studio</div>
+    <h1 class="htit rv d1">FORGE<br><span class="fw">YOUR</span>FORM</h1>
+    <p class="hsub rv d2">Where ancient endurance meets modern science. Like the moth drawn to flame — you will be unstoppable, relentless, reborn.</p>
+    <div class="hbtns rv d3"><button class="bf">Start Training</button><button class="bg">View Programs</button></div>
+  </div>
+  <div class="sind"><span>Scroll</span><div class="sln"></div></div>
+</section>
+
+<!-- ═══ P2 STATS ═══ -->
+<section class="panel" id="p2">
+  <div class="p2bg"></div>
+  <div class="pml" data-spd="0.2" style="position:absolute;bottom:-80px;right:-80px;width:560px;height:560px;opacity:.07">
+    <svg viewBox="0 0 560 560" fill="none"><defs><linearGradient id="s2a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+    <ellipse cx="280" cy="308" rx="22" ry="56" fill="url(#s2a)"/>
+    <path d="M258 296 Q154 174 50 52 Q178 140 270 276Z" fill="url(#s2a)"/>
+    <path d="M302 296 Q406 174 510 52 Q382 140 290 276Z" fill="url(#s2a)"/>
+    <path d="M258 320 Q110 392 50 508 Q178 406 270 340Z" fill="url(#s2a)" opacity=".55"/>
+    <path d="M302 320 Q450 392 510 508 Q382 406 290 340Z" fill="url(#s2a)" opacity=".55"/></svg>
+  </div>
+  <div class="pml" data-spd="0.35" style="position:absolute;top:-60px;left:-60px;width:380px;height:380px;opacity:.05;transform:scaleX(-1)">
+    <svg viewBox="0 0 380 380" fill="none"><defs><linearGradient id="s2b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient></defs>
+    <ellipse cx="190" cy="208" rx="15" ry="38" fill="url(#s2b)"/>
+    <path d="M175 200 Q107 120 39 40 Q123 96 182 188Z" fill="url(#s2b)"/>
+    <path d="M205 200 Q273 120 341 40 Q257 96 198 188Z" fill="url(#s2b)"/>
+    <path d="M175 216 Q72 262 39 342 Q123 270 182 228Z" fill="url(#s2b)" opacity=".55"/>
+    <path d="M205 216 Q308 262 341 342 Q257 270 198 228Z" fill="url(#s2b)" opacity=".55"/></svg>
+  </div>
+  <div class="sw">
+    <div class="sc rv">
+      <div class="sc-ico">
+        <svg width="42" height="42" viewBox="0 0 42 42" fill="none"><defs><linearGradient id="si1" x1="6" y1="38" x2="36" y2="4" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient><linearGradient id="si1b" x1="12" y1="38" x2="30" y2="18" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#ffb347"/></linearGradient></defs>
+        <path d="M21 37C12.5 37 6 30.5 6 22C6 16 10 12 14.5 8C13.5 13.5 16.5 17 19 14.5C19 10.5 21 6 25 4C23 10.5 27 14.5 29 18.5C31 14.5 30 10.5 28 7.5C34 11.5 35 19 33 25C32 29 29 33 25 35" fill="url(#si1)"/>
+        <path d="M21 37C16 37 12.5 33 12.5 29C12.5 25 15.5 23 18.5 21C17.5 24 19.5 26 21.5 25C20.5 23 21.5 20 24.5 18.5C23.5 22 25.5 24 26.5 27C27.5 25 26.5 23 25.5 21C28.5 23 29.5 27 28.5 31C27.5 34.5 24.5 37 21 37Z" fill="url(#si1b)"/></svg>
+      </div>
+      <div class="sc-num" data-target="12">0</div><div class="sc-lbl">Years of Excellence</div>
+    </div>
+    <div class="sc rv d1">
+      <div class="sc-ico">
+        <svg width="42" height="42" viewBox="0 0 42 42" fill="none"><defs><linearGradient id="si2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#ff1f6b"/></linearGradient></defs>
+        <circle cx="14" cy="13" r="5" fill="url(#si2)" opacity=".7"/>
+        <circle cx="28" cy="13" r="5" fill="url(#si2)" opacity=".7"/>
+        <circle cx="21" cy="18" r="6" fill="url(#si2)"/>
+        <path d="M4 36C4 29 8.5 23 14 23" stroke="url(#si2)" stroke-width="2.8" stroke-linecap="round"/>
+        <path d="M38 36C38 29 33.5 23 28 23C25.5 23 23.2 24 21.5 25.5" stroke="url(#si2)" stroke-width="2.8" stroke-linecap="round"/>
+        <path d="M10 36C10 30 15 26 21 26C27 26 32 30 32 36" stroke="url(#si2)" stroke-width="2.8" stroke-linecap="round"/></svg>
+      </div>
+      <div class="sc-num" data-target="8500">0</div><div class="sc-lbl">Members Transformed</div>
+    </div>
+    <div class="sc rv d2">
+      <div class="sc-ico">
+        <svg width="42" height="42" viewBox="0 0 42 42" fill="none"><defs><linearGradient id="si3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff8c42"/></linearGradient><linearGradient id="si3b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#ffb347" stop-opacity=".35"/></linearGradient></defs>
+        <path d="M21 4L24.5 14.5H36L27.5 21.5L30.5 32.5L21 26L11.5 32.5L14.5 21.5L6 14.5H17.5Z" fill="url(#si3)"/>
+        <circle cx="21" cy="19" r="5.5" fill="url(#si3b)"/>
+        <path d="M16 35L21 32.5L26 35V39L21 37.5L16 39Z" fill="url(#si3)" opacity=".65"/></svg>
+      </div>
+      <div class="sc-num" data-target="47">0</div><div class="sc-lbl">Expert Trainers</div>
+    </div>
+    <div class="sc rv d3">
+      <div class="sc-ico">
+        <svg width="42" height="42" viewBox="0 0 42 42" fill="none"><defs><linearGradient id="si4" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff1f6b"/><stop offset="1" stop-color="#c850c0"/></linearGradient></defs>
+        <path d="M21 36L6 21C3 18 3 12.5 6.5 9C10 5.5 15 5.5 18 8.5L21 11.5L24 8.5C27 5.5 32 5.5 35.5 9C39 12.5 39 18 36 21Z" fill="url(#si4)"/>
+        <path d="M12 18C12 14 16 12 20.5 15" stroke="rgba(255,255,255,.38)" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="sc-num" data-target="98">0</div><div class="sc-lbl">% Satisfaction</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ P3 PROGRAMS ═══ -->
+<section class="panel" id="p3">
+  <div class="p3bg"></div>
+  <div class="pml" data-spd="0.22" style="position:absolute;top:50%;right:-30px;transform:translateY(-50%);width:280px;height:280px;opacity:.09">
+    <svg viewBox="0 0 280 280" fill="none"><defs><linearGradient id="p3a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4d1c"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+    <ellipse cx="140" cy="154" rx="11" ry="30" fill="url(#p3a)"/>
+    <path d="M129 148 Q73 88 17 28 Q89 72 134 138Z" fill="url(#p3a)"/>
+    <path d="M151 148 Q207 88 263 28 Q191 72 146 138Z" fill="url(#p3a)"/>
+    <path d="M129 160 Q52 196 17 260 Q89 208 134 170Z" fill="url(#p3a)" opacity=".55"/>
+    <path d="M151 160 Q228 196 263 260 Q191 208 146 170Z" fill="url(#p3a)" opacity=".55"/></svg>
+  </div>
+  <div class="p3in">
+    <div><div class="stag rv">What We Offer</div><div class="stit rv d1">OUR PROGRAMS</div></div>
+    <div class="pg">
+      <div class="pc pc1 rv d2">
+        <svg class="pcm" viewBox="0 0 52 52" fill="none"><defs><linearGradient id="pm1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient></defs>
+        <ellipse cx="26" cy="31" rx="4" ry="9" fill="url(#pm1)"/>
+        <path d="M22 28 Q13 17 4 6 Q16 13 24 26Z" fill="url(#pm1)"/>
+        <path d="M30 28 Q39 17 48 6 Q36 13 28 26Z" fill="url(#pm1)"/>
+        <path d="M22 33 Q9 40 4 50 Q16 41 24 36Z" fill="url(#pm1)" opacity=".6"/>
+        <path d="M30 33 Q43 40 48 50 Q36 41 28 36Z" fill="url(#pm1)" opacity=".6"/>
+        <circle cx="19" cy="25" r="3" fill="#ff1f6b" opacity=".5"/><circle cx="19" cy="25" r="1.5" fill="#fff" opacity=".4"/>
+        <circle cx="33" cy="25" r="3" fill="#ff1f6b" opacity=".5"/><circle cx="33" cy="25" r="1.5" fill="#fff" opacity=".4"/></svg>
+        <span class="pbadge b1">Intensity</span>
+        <h3>Strength & Power</h3>
+        <p>Periodized programming by Olympic coaches. Build raw, functional strength that commands respect.</p>
+        <div class="pcs s1">↑ 40% STRENGTH GAIN / 12 WKS</div>
+        <svg class="pca" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16L16 4M16 4H8M16 4V12" stroke="#ff4d1c" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pc pc2 rv d3">
+        <svg class="pcm" viewBox="0 0 52 52" fill="none"><defs><linearGradient id="pm2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+        <ellipse cx="26" cy="31" rx="4" ry="9" fill="url(#pm2)"/>
+        <path d="M22 28 Q13 17 4 6 Q16 13 24 26Z" fill="url(#pm2)"/>
+        <path d="M30 28 Q39 17 48 6 Q36 13 28 26Z" fill="url(#pm2)"/>
+        <path d="M22 33 Q9 40 4 50 Q16 41 24 36Z" fill="url(#pm2)" opacity=".6"/>
+        <path d="M30 33 Q43 40 48 50 Q36 41 28 36Z" fill="url(#pm2)" opacity=".6"/>
+        <circle cx="19" cy="25" r="3" fill="#4158d0" opacity=".5"/><circle cx="19" cy="25" r="1.5" fill="#fff" opacity=".4"/>
+        <circle cx="33" cy="25" r="3" fill="#4158d0" opacity=".5"/><circle cx="33" cy="25" r="1.5" fill="#fff" opacity=".4"/></svg>
+        <span class="pbadge b2">Speed</span>
+        <h3>HIIT & Cardio</h3>
+        <p>High-voltage intervals that shred fat, boost VO2 max, and push your body beyond its limits.</p>
+        <div class="pcs s2">↓ 15% BODY FAT / 8 WKS</div>
+        <svg class="pca" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16L16 4M16 4H8M16 4V12" stroke="#c850c0" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pc pc3 rv d4">
+        <svg class="pcm" viewBox="0 0 52 52" fill="none"><defs><linearGradient id="pm3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4158d0"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+        <ellipse cx="26" cy="31" rx="4" ry="9" fill="url(#pm3)"/>
+        <path d="M22 28 Q13 17 4 6 Q16 13 24 26Z" fill="url(#pm3)"/>
+        <path d="M30 28 Q39 17 48 6 Q36 13 28 26Z" fill="url(#pm3)"/>
+        <path d="M22 33 Q9 40 4 50 Q16 41 24 36Z" fill="url(#pm3)" opacity=".6"/>
+        <path d="M30 33 Q43 40 48 50 Q36 41 28 36Z" fill="url(#pm3)" opacity=".6"/>
+        <circle cx="19" cy="25" r="3" fill="#06b6d4" opacity=".5"/><circle cx="19" cy="25" r="1.5" fill="#fff" opacity=".4"/>
+        <circle cx="33" cy="25" r="3" fill="#06b6d4" opacity=".5"/><circle cx="33" cy="25" r="1.5" fill="#fff" opacity=".4"/></svg>
+        <span class="pbadge b3">Flow</span>
+        <h3>Mobility & Flow</h3>
+        <p>Unlock your body's true range. Yoga, fascia release, and neuro-mobility for elite performance.</p>
+        <div class="pcs s3">↑ 60% FLEXIBILITY / 6 WKS</div>
+        <svg class="pca" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16L16 4M16 4H8M16 4V12" stroke="#4158d0" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ P4 EYE + MOTH ═══ -->
+<section class="panel" id="p4">
+  <div class="p4bg"></div><div class="p4gd"></div>
+  <!-- Wing parallax layers -->
+  <div class="pml" data-spd="-0.18" style="position:absolute;left:0;top:50%;transform:translateY(-50%)">
+    <svg width="240" height="360" viewBox="0 0 240 360" fill="none">
+      <path d="M240 180 Q148 76 56 0 Q116 76 196 172Z" fill="rgba(255,140,66,.18)"/>
+      <path d="M240 180 Q130 250 56 360 Q150 268 212 192Z" fill="rgba(255,140,66,.1)"/>
+    </svg>
+  </div>
+  <div class="pml" data-spd="-0.18" style="position:absolute;right:0;top:50%;transform:translateY(-50%) scaleX(-1)">
+    <svg width="240" height="360" viewBox="0 0 240 360" fill="none">
+      <path d="M240 180 Q148 76 56 0 Q116 76 196 172Z" fill="rgba(65,88,208,.18)"/>
+      <path d="M240 180 Q130 250 56 360 Q150 268 212 192Z" fill="rgba(65,88,208,.1)"/>
+    </svg>
+  </div>
+  <div class="pml" data-spd="0.32" style="position:absolute;bottom:-60px;left:10%;width:200px;height:200px;opacity:.06">
+    <svg viewBox="0 0 200 200" fill="none"><defs><linearGradient id="p4a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#c850c0"/></linearGradient></defs>
+    <ellipse cx="100" cy="110" rx="8" ry="22" fill="url(#p4a)"/>
+    <path d="M92 106 Q52 64 12 22 Q64 52 96 100Z" fill="url(#p4a)"/>
+    <path d="M108 106 Q148 64 188 22 Q136 52 104 100Z" fill="url(#p4a)"/>
+    <path d="M92 114 Q38 140 12 178 Q64 144 96 120Z" fill="url(#p4a)" opacity=".55"/>
+    <path d="M108 114 Q162 140 188 178 Q136 144 104 120Z" fill="url(#p4a)" opacity=".55"/></svg>
+  </div>
+  <div class="p4in">
+    <div class="p4tit rv">THE <span class="gt">MOTH EYE</span><br>OF ASCENSION</div>
+    <div class="p4sub rv d1">Vision · Precision · Transformation</div>
+    <div class="emw rv d2">
+      <!-- Big moth SVG -->
+      <svg class="bmsv" viewBox="0 0 480 288" fill="none">
+        <defs>
+          <linearGradient id="bm1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset=".35" stop-color="#ff4d1c"/><stop offset="1" stop-color="#ff1f6b"/></linearGradient>
+          <linearGradient id="bm2" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient>
+          <linearGradient id="bm3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42" stop-opacity=".35"/><stop offset="1" stop-color="#ff1f6b" stop-opacity=".08"/></linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <ellipse cx="240" cy="170" rx="9" ry="36" fill="url(#bm1)" filter="url(#glow)"/>
+        <circle cx="240" cy="130" r="7.5" fill="#ffb347" filter="url(#glow)"/>
+        <path d="M234 124 Q220 104 208 86" stroke="#ff8c42" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M246 124 Q260 104 272 86" stroke="#ff8c42" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="208" cy="86" r="2.5" fill="#ffb347"/>
+        <circle cx="272" cy="86" r="2.5" fill="#ffb347"/>
+        <!-- upper wings -->
+        <path d="M231 155 Q153 87 57 18 Q163 68 235 143Z" fill="url(#bm1)" filter="url(#glow)"/>
+        <path d="M231 155 Q153 87 57 18 Q163 68 235 143Z" fill="url(#bm3)" filter="url(#glow)"/>
+        <path d="M249 155 Q327 87 423 18 Q317 68 245 143Z" fill="url(#bm1)" filter="url(#glow)"/>
+        <!-- lower wings -->
+        <path d="M231 172 Q123 214 57 270 Q153 212 237 182Z" fill="url(#bm2)" filter="url(#glow)"/>
+        <path d="M249 172 Q357 214 423 270 Q327 212 243 182Z" fill="url(#bm2)" filter="url(#glow)"/>
+        <!-- veins -->
+        <path d="M229 160 Q178 120 124 78" stroke="rgba(255,255,255,.18)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M251 160 Q302 120 356 78" stroke="rgba(255,255,255,.18)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- eye spots on wings -->
+        <circle cx="178" cy="148" r="16" fill="#ff1f6b" opacity=".3"/>
+        <circle cx="178" cy="148" r="9" fill="#4158d0" opacity=".4"/>
+        <circle cx="178" cy="148" r="4" fill="#fff" opacity=".3"/>
+        <circle cx="302" cy="148" r="16" fill="#ff1f6b" opacity=".3"/>
+        <circle cx="302" cy="148" r="9" fill="#4158d0" opacity=".4"/>
+        <circle cx="302" cy="148" r="4" fill="#fff" opacity=".3"/>
+      </svg>
+      <!-- Eye on moth body -->
+      <div class="eonm">
+        <div class="eout"><div class="eiri"><div class="epup" id="epup"><div class="esp"></div></div></div></div>
+      </div>
+    </div>
+    <div class="p4stats rv d3">
+      <div style="text-align:center"><div class="p4s-v">4D</div><div class="p4s-l">Experience</div></div>
+      <div style="text-align:center"><div class="p4s-v">360°</div><div class="p4s-l">Training</div></div>
+      <div style="text-align:center"><div class="p4s-v">∞</div><div class="p4s-l">Potential</div></div>
+      <div style="text-align:center"><div class="p4s-v">24/7</div><div class="p4s-l">Access</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ P5 TRAINERS ═══ -->
+<section class="panel" id="p5">
+  <div class="p5bg"></div>
+  <div class="pml" data-spd="0.17" style="position:absolute;left:-50px;bottom:-30px;width:320px;height:320px;opacity:.07;transform:scaleX(-1) rotate(-18deg)">
+    <svg viewBox="0 0 320 320" fill="none"><defs><linearGradient id="t5a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#c850c0"/></linearGradient></defs>
+    <ellipse cx="160" cy="176" rx="13" ry="34" fill="url(#t5a)"/>
+    <path d="M147 168 Q83 100 19 32 Q103 82 153 156Z" fill="url(#t5a)"/>
+    <path d="M173 168 Q237 100 301 32 Q217 82 167 156Z" fill="url(#t5a)"/>
+    <path d="M147 184 Q57 220 19 288 Q103 232 153 196Z" fill="url(#t5a)" opacity=".5"/>
+    <path d="M173 184 Q263 220 301 288 Q217 232 167 196Z" fill="url(#t5a)" opacity=".5"/></svg>
+  </div>
+  <div class="pml" data-spd="0.27" style="position:absolute;right:-50px;top:-30px;width:260px;height:260px;opacity:.06;transform:rotate(14deg)">
+    <svg viewBox="0 0 260 260" fill="none"><defs><linearGradient id="t5b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4158d0"/><stop offset="1" stop-color="#ff1f6b"/></linearGradient></defs>
+    <ellipse cx="130" cy="143" rx="10" ry="28" fill="url(#t5b)"/>
+    <path d="M120 137 Q67 81 14 25 Q82 66 125 127Z" fill="url(#t5b)"/>
+    <path d="M140 137 Q193 81 246 25 Q178 66 135 127Z" fill="url(#t5b)"/>
+    <path d="M120 149 Q46 178 14 235 Q82 190 125 160Z" fill="url(#t5b)" opacity=".5"/>
+    <path d="M140 149 Q214 178 246 235 Q178 190 135 160Z" fill="url(#t5b)" opacity=".5"/></svg>
+  </div>
+  <div class="p5in">
+    <div class="stag rv">The Team</div><div class="stit rv d1">ELITE TRAINERS</div>
+    <div class="tg">
+      <div class="tc rv d2">
+        <div class="tctop tt1">
+          <svg class="tcico" viewBox="0 0 110 110" fill="none"><defs><linearGradient id="ti1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient></defs>
+          <circle cx="55" cy="55" r="52" fill="rgba(255,140,66,.1)"/>
+          <ellipse cx="55" cy="65" rx="7" ry="18" fill="url(#ti1)"/>
+          <path d="M48 61 Q29 41 10 21 Q35 35 51 57Z" fill="url(#ti1)"/><path d="M62 61 Q81 41 100 21 Q75 35 59 57Z" fill="url(#ti1)"/>
+          <path d="M48 68 Q22 80 10 95 Q35 76 51 72Z" fill="url(#ti1)" opacity=".6"/><path d="M62 68 Q88 80 100 95 Q75 76 59 72Z" fill="url(#ti1)" opacity=".6"/>
+          <circle cx="44" cy="55" r="5" fill="#ff1f6b" opacity=".55"/><circle cx="44" cy="55" r="2.5" fill="#fff" opacity=".45"/>
+          <circle cx="66" cy="55" r="5" fill="#ff1f6b" opacity=".55"/><circle cx="66" cy="55" r="2.5" fill="#fff" opacity=".45"/>
+          <div class="tcgl"></div></svg>
+          <div class="tcgl"></div>
+        </div>
+        <div class="tcb"><div class="tcac"></div><div class="tcn">Marcus Chen</div><div class="tcs">Strength & Olympic Lifting</div><div class="tcr"><span class="stars">★★★★★</span><span>4.9 · 312 sessions</span></div></div>
+      </div>
+      <div class="tc tc2 rv d3">
+        <div class="tctop tt2">
+          <svg class="tcico" viewBox="0 0 110 110" fill="none"><defs><linearGradient id="ti2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+          <circle cx="55" cy="55" r="52" fill="rgba(200,80,192,.1)"/>
+          <ellipse cx="55" cy="65" rx="7" ry="18" fill="url(#ti2)"/>
+          <path d="M48 61 Q29 41 10 21 Q35 35 51 57Z" fill="url(#ti2)"/><path d="M62 61 Q81 41 100 21 Q75 35 59 57Z" fill="url(#ti2)"/>
+          <path d="M48 68 Q22 80 10 95 Q35 76 51 72Z" fill="url(#ti2)" opacity=".6"/><path d="M62 68 Q88 80 100 95 Q75 76 59 72Z" fill="url(#ti2)" opacity=".6"/>
+          <circle cx="44" cy="55" r="5" fill="#4158d0" opacity=".55"/><circle cx="44" cy="55" r="2.5" fill="#fff" opacity=".45"/>
+          <circle cx="66" cy="55" r="5" fill="#4158d0" opacity=".55"/><circle cx="66" cy="55" r="2.5" fill="#fff" opacity=".45"/>
+          <div class="tcgl"></div></svg>
+          <div class="tcgl"></div>
+        </div>
+        <div class="tcb"><div class="tcac"></div><div class="tcn">Sofia Reyes</div><div class="tcs">HIIT & Functional Training</div><div class="tcr"><span class="stars">★★★★★</span><span>5.0 · 489 sessions</span></div></div>
+      </div>
+      <div class="tc tc3 rv d4">
+        <div class="tctop tt3">
+          <svg class="tcico" viewBox="0 0 110 110" fill="none"><defs><linearGradient id="ti3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4158d0"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+          <circle cx="55" cy="55" r="52" fill="rgba(65,88,208,.1)"/>
+          <ellipse cx="55" cy="65" rx="7" ry="18" fill="url(#ti3)"/>
+          <path d="M48 61 Q29 41 10 21 Q35 35 51 57Z" fill="url(#ti3)"/><path d="M62 61 Q81 41 100 21 Q75 35 59 57Z" fill="url(#ti3)"/>
+          <path d="M48 68 Q22 80 10 95 Q35 76 51 72Z" fill="url(#ti3)" opacity=".6"/><path d="M62 68 Q88 80 100 95 Q75 76 59 72Z" fill="url(#ti3)" opacity=".6"/>
+          <circle cx="44" cy="55" r="5" fill="#06b6d4" opacity=".55"/><circle cx="44" cy="55" r="2.5" fill="#fff" opacity=".45"/>
+          <circle cx="66" cy="55" r="5" fill="#06b6d4" opacity=".55"/><circle cx="66" cy="55" r="2.5" fill="#fff" opacity=".45"/>
+          <div class="tcgl"></div></svg>
+          <div class="tcgl"></div>
+        </div>
+        <div class="tcb"><div class="tcac"></div><div class="tcn">Kai Nakamura</div><div class="tcs">Mobility & Recovery</div><div class="tcr"><span class="stars">★★★★★</span><span>4.8 · 267 sessions</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ P6 FEATURES ═══ -->
+<section class="panel" id="p6">
+  <div class="p6bg"></div>
+  <div class="pml" data-spd="0.2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;opacity:.04">
+    <svg viewBox="0 0 500 500" fill="none"><defs><linearGradient id="f6a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+    <ellipse cx="250" cy="274" rx="20" ry="50" fill="url(#f6a)"/>
+    <path d="M230 264 Q142 154 54 44 Q162 114 244 250Z" fill="url(#f6a)"/>
+    <path d="M270 264 Q358 154 446 44 Q338 114 256 250Z" fill="url(#f6a)"/>
+    <path d="M230 284 Q98 346 54 456 Q162 364 244 300Z" fill="url(#f6a)" opacity=".55"/>
+    <path d="M270 284 Q402 346 446 456 Q338 364 256 300Z" fill="url(#f6a)" opacity=".55"/></svg>
+  </div>
+  <div class="p6in">
+    <div class="stag rv">Why MOTH GYM</div><div class="stit rv d1">BUILT DIFFERENT</div>
+    <div class="fg">
+      <div class="fc rv d2"><div class="fcbg"></div>
+        <svg class="fcico" viewBox="0 0 50 50" fill="none"><defs><linearGradient id="f1g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient></defs>
+        <circle cx="25" cy="25" r="23" fill="rgba(255,140,66,.1)"/>
+        <path d="M25 11C16.7 11 10 17.7 10 26C10 34.3 16.7 41 25 41C33.3 41 40 34.3 40 26" stroke="url(#f1g)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M31 7L39 15L31 23" stroke="url(#f1g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M39 15H27C22.6 15 19 19 19 25" stroke="url(#f1g)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="25" cy="25" r="4" fill="url(#f1g)"/></svg>
+        <h4>Recovery Science</h4><p>AI-powered recovery tracking, sleep optimization and HRV monitoring to prevent overtraining.</p>
+        <div class="fcln"></div>
+      </div>
+      <div class="fc rv d3"><div class="fcbg"></div>
+        <svg class="fcico" viewBox="0 0 50 50" fill="none"><defs><linearGradient id="f2g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs>
+        <circle cx="25" cy="25" r="23" fill="rgba(200,80,192,.08)"/>
+        <path d="M13 23H37C37 31.8 31.3 38 25 38C18.7 38 13 31.8 13 23Z" fill="url(#f2g)" opacity=".25"/>
+        <path d="M13 23H37C37 31.8 31.3 38 25 38C18.7 38 13 31.8 13 23Z" stroke="url(#f2g)" stroke-width="2"/>
+        <path d="M21 17C21 14 23 12 25 12C27 12 29 14 29 17" stroke="url(#f2g)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="21" cy="28" r="2.5" fill="url(#f2g)"/><circle cx="29" cy="28" r="2.5" fill="url(#f2g)"/>
+        <path d="M21 33H29" stroke="url(#f2g)" stroke-width="2" stroke-linecap="round"/></svg>
+        <h4>Smart Nutrition</h4><p>Custom macro plans, meal prep guides and real-time nutrition coaching synced to your training.</p>
+        <div class="fcln"></div>
+      </div>
+      <div class="fc rv d4"><div class="fcbg"></div>
+        <svg class="fcico" viewBox="0 0 50 50" fill="none"><defs><linearGradient id="f3g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4d1c"/><stop offset="1" stop-color="#ff1f6b"/></linearGradient></defs>
+        <circle cx="25" cy="25" r="23" fill="rgba(255,77,28,.08)"/>
+        <rect x="9" y="23" width="32" height="4" rx="2" fill="url(#f3g)"/>
+        <rect x="7" y="18" width="5" height="14" rx="2.5" fill="url(#f3g)" opacity=".8"/>
+        <rect x="12" y="15" width="4" height="20" rx="2" fill="url(#f3g)"/>
+        <rect x="38" y="18" width="5" height="14" rx="2.5" fill="url(#f3g)" opacity=".8"/>
+        <rect x="34" y="15" width="4" height="20" rx="2" fill="url(#f3g)"/>
+        <circle cx="25" cy="25" r="5" fill="rgba(255,77,28,.15)" stroke="url(#f3g)" stroke-width="1.5"/></svg>
+        <h4>Elite Equipment</h4><p>Over $2M in Eleiko, Rogue and Life Fitness gear across 3 dedicated training floors.</p>
+        <div class="fcln"></div>
+      </div>
+      <div class="fc rv d5"><div class="fcbg"></div>
+        <svg class="fcico" viewBox="0 0 50 50" fill="none"><defs><linearGradient id="f4g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4158d0"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+        <circle cx="25" cy="25" r="23" fill="rgba(65,88,208,.08)"/>
+        <circle cx="19" cy="19" r="5" fill="url(#f4g)" opacity=".7"/>
+        <circle cx="31" cy="19" r="5" fill="url(#f4g)" opacity=".7"/>
+        <circle cx="25" cy="29" r="5" fill="url(#f4g)"/>
+        <path d="M11 38C11 33.6 14.8 30 19 30" stroke="url(#f4g)" stroke-width="2.3" stroke-linecap="round"/>
+        <path d="M39 38C39 33.6 35.2 30 31 30C28.5 30 26.3 31 24.5 32.7" stroke="url(#f4g)" stroke-width="2.3" stroke-linecap="round"/>
+        <path d="M18 38C18 34.7 21.1 32 25 32C28.9 32 32 34.7 32 38" stroke="url(#f4g)" stroke-width="2.3" stroke-linecap="round"/></svg>
+        <h4>Tribe Community</h4><p>Weekly challenges, events, and accountability partners in a tribe of driven individuals.</p>
+        <div class="fcln"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ P7 CTA ═══ -->
+<section class="panel" id="p7">
+  <div class="p7bg"></div><div class="p7gl"></div>
+  <div class="pml" data-spd="-0.18" style="position:absolute;left:0;top:50%;transform:translateY(-50%);width:400px;height:400px;opacity:.08">
+    <svg viewBox="0 0 400 400" fill="none"><defs><linearGradient id="c7a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42" stop-opacity=".5"/><stop offset="1" stop-color="#c850c0" stop-opacity=".1"/></linearGradient></defs>
+    <ellipse cx="200" cy="220" rx="16" ry="42" fill="url(#c7a)"/>
+    <path d="M184 212 Q104 126 24 40 Q132 104 192 200Z" fill="url(#c7a)"/>
+    <path d="M216 212 Q296 126 376 40 Q268 104 208 200Z" fill="url(#c7a)"/>
+    <path d="M184 228 Q72 276 24 364 Q132 284 192 242Z" fill="url(#c7a)" opacity=".5"/>
+    <path d="M216 228 Q328 276 376 364 Q268 284 208 242Z" fill="url(#c7a)" opacity=".5"/></svg>
+  </div>
+  <div class="pml" data-spd="-0.18" style="position:absolute;right:0;top:50%;transform:translateY(-50%) scaleX(-1);width:400px;height:400px;opacity:.08">
+    <svg viewBox="0 0 400 400" fill="none"><defs><linearGradient id="c7b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4158d0" stop-opacity=".5"/><stop offset="1" stop-color="#ff1f6b" stop-opacity=".1"/></linearGradient></defs>
+    <ellipse cx="200" cy="220" rx="16" ry="42" fill="url(#c7b)"/>
+    <path d="M184 212 Q104 126 24 40 Q132 104 192 200Z" fill="url(#c7b)"/>
+    <path d="M216 212 Q296 126 376 40 Q268 104 208 200Z" fill="url(#c7b)"/>
+    <path d="M184 228 Q72 276 24 364 Q132 284 192 242Z" fill="url(#c7b)" opacity=".5"/>
+    <path d="M216 228 Q328 276 376 364 Q268 284 208 242Z" fill="url(#c7b)" opacity=".5"/></svg>
+  </div>
+  <div class="p7in">
+    <div class="ceb rv">Ready to Transform?</div>
+    <div class="ctit rv d1">SPREAD<br><span class="ch">YOUR WINGS</span></div>
+    <p class="csub rv d2">Your first class is free. No contracts. Just raw, results-driven training that strips away everything and leaves you reborn.</p>
+    <div class="crow rv d3">
+      <input type="email" class="cinp" placeholder="Enter your email...">
+      <button class="cbtn">Claim Free Class</button>
+    </div>
+    <div class="cperks rv d4">
+      <div class="perk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" fill="url(#ck1)"/><path d="M3.5 6.5L5.5 8.5L9.5 4.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="ck1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8c42"/><stop offset="1" stop-color="#ff4d1c"/></linearGradient></defs></svg>No Credit Card</div>
+      <div class="perk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" fill="url(#ck2)"/><path d="M3.5 6.5L5.5 8.5L9.5 4.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="ck2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c850c0"/><stop offset="1" stop-color="#4158d0"/></linearGradient></defs></svg>Cancel Anytime</div>
+      <div class="perk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" fill="url(#ck3)"/><path d="M3.5 6.5L5.5 8.5L9.5 4.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="ck3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb347"/><stop offset="1" stop-color="#ff8c42"/></linearGradient></defs></svg>First Class Free</div>
+      <div class="perk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" fill="url(#ck4)"/><path d="M3.5 6.5L5.5 8.5L9.5 4.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="ck4" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4158d0"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs></svg>Expert Guidance</div>
+    </div>
+  </div>
+</section>
+
+</div></div><!-- /track /vp -->
+
+<script>
+// ══ CURSOR ══
+const cur=document.getElementById('cur'),ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx-5+'px';cur.style.top=my-5+'px'});
+(function ar(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx-19+'px';ring.style.top=ry-19+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('button,a,.pc,.tc,.fc,.dot').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='scale(3)';ring.style.transform='scale(1.6)';ring.style.borderColor='rgba(255,140,66,.8)'});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='';ring.style.transform='';ring.style.borderColor='rgba(255,140,66,.5)'});
+});
+
+// ══ HORIZONTAL SCROLL ══
+const track=document.getElementById('track');
+const panels=[...document.querySelectorAll('.panel')];
+const N=panels.length;
+let cp=0,tX=0,cX=0,canS=true;
+
+function toP(i){
+  cp=Math.max(0,Math.min(N-1,i));
+  tX=cp*window.innerWidth;
+  document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===cp));
+  document.getElementById('prog').style.width=(cp/(N-1)*100)+'%';
+  setTimeout(()=>reveal(cp),130);
+  if(cp===1&&!scnt){scnt=true;setTimeout(animC,360)}
+}
+function lock(){canS=false;setTimeout(()=>canS=true,900)}
+
+// smooth lerp
+(function at(){
+  cX+=(tX-cX)*.07;if(Math.abs(tX-cX)<.4)cX=tX;
+  track.style.transform=`translateX(${-cX}px)`;
+  parallax();
+  requestAnimationFrame(at);
+})();
+
+window.addEventListener('wheel',e=>{
+  e.preventDefault();if(!canS)return;
+  const d=e.deltaY||e.deltaX;if(Math.abs(d)<8)return;
+  lock();toP(cp+(d>0?1:-1));
+},{passive:false});
+
+window.addEventListener('keydown',e=>{
+  if(!canS)return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){lock();toP(cp+1)}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){lock();toP(cp-1)}
+});
+let t0=0;
+document.addEventListener('touchstart',e=>t0=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{const dx=t0-e.changedTouches[0].clientX;if(Math.abs(dx)>60&&canS){lock();toP(cp+(dx>0?1:-1))}});
+document.querySelectorAll('.dot').forEach(d=>d.addEventListener('click',()=>toP(+d.dataset.i)));
+
+// ══ PARALLAX ══
+function parallax(){
+  document.querySelectorAll('.pml').forEach(el=>{
+    const sp=parseFloat(el.dataset.spd||0);
+    // Store base transform from inline style (first time)
+    if(!el._baseT){
+      el._baseT=el.style.transform||'';
+      // Remove any translateX from base
+      el._baseT=el._baseT.replace(/translateX\([^)]+\)/g,'').trim();
+    }
+    el.style.transform=el._baseT+` translateX(${cX*sp}px)`;
+  });
+}
+
+// FG moth tilt on mouse
+document.addEventListener('mousemove',e=>{
+  if(cp!==0)return;
+  const fm=document.getElementById('fgMoth');
+  if(!fm)return;
+  const ox=(e.clientX-window.innerWidth/2)/(window.innerWidth/2);
+  const oy=(e.clientY-window.innerHeight/2)/(window.innerHeight/2);
+  fm.style.transform=fm.style.transform.replace(/perspective[^)]+\)/g,'');
+  const base=fm._baseT||'';
+  fm.style.transform=base+` perspective(900px) rotateY(${ox*12}deg) rotateX(${-oy*8}deg) translateX(${cX*(fm.dataset.spd||0)}px)`;
+});
+
+// ══ REVEAL ══
+function reveal(pi){
+  const p=panels[pi];if(!p)return;
+  p.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));
+}
+
+// ══ COUNTERS ══
+let scnt=false;
+function animC(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const t=+el.dataset.target,dur=1600,s=Date.now();
+    (function u(){
+      const prog=Math.min((Date.now()-s)/dur,1),e2=1-Math.pow(1-prog,3),v=Math.round(e2*t);
+      el.textContent=t>=1000?v.toLocaleString():v+(t===98?'%':'');
+      if(prog<1)requestAnimationFrame(u);
+      else el.textContent=t>=1000?t.toLocaleString():t+(t===98?'%':'');
+    })();
+  });
+}
+
+// ══ EYE TRACKS CURSOR ══
+document.addEventListener('mousemove',e=>{
+  if(cp!==3)return;
+  const pupil=document.getElementById('epup');if(!pupil)return;
+  const eonm=document.querySelector('.eonm');if(!eonm)return;
+  const r=eonm.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const dx=(e.clientX-cx)/(window.innerWidth/2),dy=(e.clientY-cy)/(window.innerHeight/2);
+  const mag=Math.min(Math.sqrt(dx*dx+dy*dy),1),angle=Math.atan2(dy,dx),m=9;
+  pupil.style.transform=`translate(${Math.cos(angle)*mag*m}px,${Math.sin(angle)*mag*m}px)`;
+});
+
+// ══ 3D TILT ══
+document.querySelectorAll('.pc,.tc,.fc').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*14}deg) translateY(-14px) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave',()=>card.style.transform='');
+});
+
+// ══ PARTICLE MOTHS (canvas) ══
+const canvas=document.getElementById('bgc'),ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const cols=[['#ff8c42','#ff4d1c'],['#c850c0','#4158d0'],['#ffb347','#ff1f6b'],['#4158d0','#06b6d4']];
+const moths=Array.from({length:20},(_,i)=>({
+  x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+  sz:Math.random()*11+5,spd:Math.random()*.55+.18,op:Math.random()*.12+.03,
+  c:cols[i%cols.length],wb:Math.random()*Math.PI*2,ws:Math.random()*.018+.008
+}));
+function drawM(c,x,y,sz,op,col){
+  c.save();c.globalAlpha=op;c.translate(x,y);
+  c.beginPath();c.ellipse(0,sz*.4,sz*.15,sz*.5,0,0,Math.PI*2);
+  const g=c.createLinearGradient(0,-sz,0,sz);g.addColorStop(0,col[0]);g.addColorStop(1,col[1]);
+  c.fillStyle=g;c.fill();
+  c.globalAlpha=op*.75;
+  c.beginPath();c.moveTo(0,sz*.2);c.quadraticCurveTo(-sz*.75,-sz*.25,-sz*1.15,-sz*.75);c.quadraticCurveTo(-sz*.45,-sz*.05,0,sz*.2);
+  c.fillStyle=col[0];c.fill();
+  c.beginPath();c.moveTo(0,sz*.2);c.quadraticCurveTo(sz*.75,-sz*.25,sz*1.15,-sz*.75);c.quadraticCurveTo(sz*.45,-sz*.05,0,sz*.2);c.fill();
+  c.globalAlpha=op*.45;
+  c.beginPath();c.moveTo(0,sz*.4);c.quadraticCurveTo(-sz*.65,sz*.65,-sz*.95,sz*1.1);c.quadraticCurveTo(-sz*.28,sz*.7,0,sz*.5);
+  c.fillStyle=col[1];c.fill();
+  c.beginPath();c.moveTo(0,sz*.4);c.quadraticCurveTo(sz*.65,sz*.65,sz*.95,sz*1.1);c.quadraticCurveTo(sz*.28,sz*.7,0,sz*.5);c.fill();
+  c.restore();
+}
+(function am(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  moths.forEach(m=>{m.y-=m.spd;m.wb+=m.ws;m.x+=Math.sin(m.wb)*.7;if(m.y<-80){m.y=canvas.height+10;m.x=Math.random()*canvas.width}drawM(ctx,m.x,m.y,m.sz,m.op,m.c)});
+  requestAnimationFrame(am);
+})();
+
+// ══ INIT ══
+window.addEventListener('resize',()=>{
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  tX=cp*window.innerWidth;cX=tX;
+});
+setTimeout(()=>reveal(0),180);
+</script>
+</body>
+</html>
